@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.onrender.django_project_8i6g.twa",
+        "sha256_cert_fingerprints": ["34:4A:2D:D6:A3:12:8B:C5:CE:60:4C:05:C1:12:FB:00:9B:72:C7:D3:A1:83:3D:2D:EF:75:21:3E:C7:00:B5:8A"]
+      }
+    }]

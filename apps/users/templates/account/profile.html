@@ -1,0 +1,37 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <h1>Perfil</h1>
+    <form action=""
+          method="post"
+          enctype="multipart/form-data"
+          x-data="{ submitForm() { $refs.form.submit() } }"
+          x-ref="form">
+        {% csrf_token %}
+        <input type="file"
+               name="profile_picture"
+               x-ref="fileInput"
+               @change="submitForm()"
+               hidden
+               accept="image/*">
+        <img src="{{ request.user.profile_picture.url }}"
+             alt="Foto de perfil"
+             @click="$refs.fileInput.click()"
+             width="200"
+             height="200">
+    </form>
+    <p>{{ request.user.first_name }} {{ request.user.last_name }}</p>
+    <p>{{ request.user.email }}</p>
+    <nav>
+        <ul>
+            <li>
+                <a href="{% url "account_email" %}">Cambiar correo electrónico</a>
+            </li>
+            <li>
+                <a href="{% url "account_change_password" %}">Cambiar contraseña</a>
+            </li>
+            <li>
+                <a href="{% url "account_logout" %}">Cerrar sesión</a>
+            </li>
+        </ul>
+    </nav>
+{% endblock content %}
