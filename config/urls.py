@@ -33,6 +33,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("accounts/profile/", include("apps.users.urls")),
+    path("", include("apps.core.urls")),
 ]
 
 if settings.DEBUG:
