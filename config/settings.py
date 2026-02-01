@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "pwa",
     "apps.users",
+    "apps.core",
     "allauth",
     "allauth.account",
     "neapolitan",
