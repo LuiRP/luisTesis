@@ -1,0 +1,35 @@
+{% extends "layouts/base.html" %}
+{% load neapolitan %}
+{% block content %}
+    <h1>{{ object_verbose_name_plural|capfirst }}</h1>
+    {% if create_view_url %}<a href="{{ create_view_url }}">Add new</a>{% endif %}
+    <form method="get">
+        {% if filterset %}
+            {% for field in filterset.form %}
+                <div>
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <button type="submit">Apply</button>
+        <a href="{{ request.path }}">Clear</a>
+    </form>
+    <hr>
+    {% if object_list %}
+        {% object_list object_list view %}
+        {% if is_paginated %}
+            <nav>
+                {% if page_obj.has_previous %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <p>No records found.</p>
+    {% endif %}
+{% endblock content %}
