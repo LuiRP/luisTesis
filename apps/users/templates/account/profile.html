@@ -29,7 +29,7 @@
             {{ request.user.first_name }} {{ request.user.last_name }}
         </p>
         <p class="opacity-75 text-orange-500 font-light">{{ request.user.email }}</p>
-        <nav class="w-full max-w-md">
+        <nav class="w-full max-w-md mb-24">
             <ul class="flex flex-col gap-2 mt-4 bg-neutral-50 rounded-lg ">
                 <a class="border-neutral-200 border-2 p-4 rounded-lg hover:bg-neutral-100"
                    href="{% url "account_email" %}">

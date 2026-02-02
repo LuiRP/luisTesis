@@ -5,5 +5,7 @@
 {% block content %}
     {% include "partials/balance/nav.html" with active="bs" %}
     {% include "partials/balance/card.html" with currency="Bolivar" symbol="Bs" balance=balances.total_ves color1="orange" color2="yellow" color3="amber" %}
-    {% include "partials/balance/sidenav.html" %}
+    <div class="mt-4">
+        {% include "partials/balance/sidenav.html" %}
+    </div>
 {% endblock content %}

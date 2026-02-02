@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "neapolitan",
     "django_filters",
     "mathfilters",
+    "crispy_forms",
+    "crispy_tailwind",
 ]
 
 if DEBUG:
@@ -179,3 +181,6 @@ PWA_APP_SPLASH_SCREEN = [
     }
 ]
 PWA_APP_LANG = "es-ES"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+
+CRISPY_TEMPLATE_PACK = "tailwind"

@@ -23,20 +23,22 @@
     <script defer
             src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
-  <body class="bg-neutral-100">
+  <body class="bg-neutral-100 h-screen">
     <header class="border-orange-200 border-b-2 flex text-neutral-700 font-sans font-bold px-4 py-3 bg-linear-to-b from-orange-300 to-amber-200">
       <h1 class="text-3xl">
         {% block header %}
         {% endblock header %}
       </h1>
     </header>
-    <main class="p-4">
+    <main class="p-4 h-full">
       {% block body %}
         {% block content %}
         {% endblock content %}
       {% endblock body %}
     </main>
-    {% include "partials/nav.html" %}
+    {% if request.user.is_authenticated %}
+      {% include "partials/nav.html" %}
+    {% endif %}
     {% block extra_body %}
     {% endblock extra_body %}
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>

@@ -1,0 +1,81 @@
+{% extends "layouts/auth.html" %}
+{% load i18n %}
+{% load account %}
+
+{% block head_title %}{% trans "Confirmar Email" %}{% endblock head_title %}
+
+{% block content %}
+<div class="max-w-md mx-auto pt-4 pb-10 px-4">
+    <div class="bg-white p-8 rounded-3xl shadow-sm border-b-4 border-orange-100">
+        
+        {% if confirmation %}
+            {% user_display confirmation.email_address.user as user_display %}
+
+            {% if can_confirm %}
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-100 shadow-inner">
+                        <i class="bi bi-patch-check text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-neutral-800">{% trans "Confirmar Cuenta" %}</h2>
+                    <p class="text-[11px] text-neutral-400 mt-2 font-mono uppercase tracking-tighter">
+                        {% trans "Estás a un paso de terminar" %}
+                    </p>
+                </div>
+
+                <div class="bg-neutral-50 rounded-2xl p-6 text-center mb-8 border border-neutral-100">
+                    <p class="text-sm text-neutral-600 leading-relaxed">
+                        {% blocktrans with confirmation.email_address.email as email %}
+                        Por favor, confirma que <span class="font-bold text-orange-600">{{ email }}</span> es la dirección de correo para el usuario <span class="font-bold text-neutral-800">{{ user_display }}</span>.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+
+                <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="w-full bg-linear-to-b from-orange-300 to-amber-200 text-neutral-700 py-4 rounded-xl font-bold shadow-md border-b-4 border-orange-300 active:border-b-0 active:translate-y-1 transition-all uppercase tracking-tight">
+                        {% trans 'Confirmar Email' %}
+                    </button>
+                </form>
+
+            {% else %}
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                        <i class="bi bi-x-circle text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-neutral-800">{% trans "Error de Confirmación" %}</h2>
+                    <p class="mt-4 text-sm text-neutral-500">
+                        {% blocktrans %}No se puede confirmar este email porque ya está vinculado a otra cuenta.{% endblocktrans %}
+                    </p>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                    <i class="bi bi-hourglass-bottom text-2xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-neutral-800">{% trans "Enlace Expirado" %}</h2>
+                
+                <p class="mt-4 text-sm text-neutral-500 px-2">
+                    {% blocktrans %}Este enlace ha expirado o es inválido.{% endblocktrans %}
+                </p>
+
+                {% url 'account_email' as email_url %}
+                <div class="mt-8">
+                    <a href="{{ email_url }}" 
+                       class="inline-block w-full bg-linear-to-b from-orange-300 to-amber-200 text-neutral-700 py-4 rounded-xl font-bold shadow-md border-b-4 border-orange-300 active:border-b-0 active:translate-y-1 transition-all">
+                        {% trans "Solicitar nuevo enlace" %}
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="mt-8 pt-6 border-t border-neutral-100 text-center">
+            <a href="{% url 'account_login' %}" class="text-[11px] font-bold text-neutral-400 uppercase tracking-widest hover:text-orange-500 transition-colors">
+                {% trans "Volver al Inicio" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
