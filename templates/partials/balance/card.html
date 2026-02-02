@@ -1,0 +1,10 @@
+<section style="view-transition-name: balance-card"
+         class="bg-linear-to-b border-2 border-{{ color1 }}-200 from-{{ color1 }}-300 to-{{ color2 }}-100 text-neutral-700 p-4 rounded-3xl">
+    <h1 class="flex gap-2">
+        <i class="bi bi-credit-card bg-{{ color3 }}-50  py-1 px-2 rounded-3xl"></i> <span class=" bg-{{ color3 }}-50  py-1 px-2 rounded-3xl w-full block font-semibold">Balance</span><span class=" bg-{{ color3 }}-50  py-1 px-2 rounded-3xl w-fit block font-semibold">{{ currency }}</span>
+    </h1>
+    <br>
+    <p class="text-4xl font-bold truncate">{{ symbol }} {{ balance|floatformat:2 }}</p>
+    <br>
+    <hr class="border-dotted text-neutral-700">
+</section>

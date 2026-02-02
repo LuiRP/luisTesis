@@ -16,6 +16,124 @@ from PIL import Image
 from pydantic import BaseModel
 from django.http import JsonResponse
 import json
+from google.genai import types
+from django.contrib.auth.decorators import login_required
+
+my_api_key = "AIzaSyC5nfGQ3OY4aypyXVsfUWR66b6Ad4dxyaY"
+
+from django.db.models import Sum, F, Case, When, DecimalField
+from django.db.models.functions import Coalesce
+
+
+def get_user_balances(user):
+    latest_rate = (
+        ExchangeRateModel.objects.filter(user=user)
+        .order_by("-date", "-created_at")
+        .first()
+    )
+
+    current_usd_rate = (
+        latest_rate.usd_rate if latest_rate and latest_rate.usd_rate > 0 else 1
+    )
+    current_eur_rate = (
+        latest_rate.eur_rate if latest_rate and latest_rate.eur_rate > 0 else 1
+    )
+
+    totals = (
+        Transaction.objects.filter(user=user)
+        .annotate(
+            eff_usd=Case(
+                When(is_custom=True, then=F("exchange_custom_rate")),
+                default=F("exchange_rate__usd_rate"),
+                output_field=DecimalField(),
+            ),
+            eff_eur=Case(
+                When(is_custom=True, then=F("exchange_custom_rate")),
+                default=F("exchange_rate__eur_rate"),
+                output_field=DecimalField(),
+            ),
+        )
+        .aggregate(
+            total_ves=Coalesce(
+                Sum(
+                    Case(
+                        When(currency="VES", then=F("total_amount")),
+                        When(currency="USD", then=F("total_amount") * F("eff_usd")),
+                        When(currency="EUR", then=F("total_amount") * F("eff_eur")),
+                        default=0,
+                        output_field=DecimalField(),
+                    )
+                ),
+                0,
+                output_field=DecimalField(),
+            )
+        )
+    )
+
+    ves_sum = totals["total_ves"]
+
+    return {
+        "total_ves": ves_sum,
+        "total_usd": ves_sum / current_usd_rate,
+        "total_eur": ves_sum / current_eur_rate,
+        "latest_rate": latest_rate,
+    }
+
+
+@login_required
+def balance_bs(request):
+    balances = get_user_balances(request.user)
+    return render(request, "balance/bs.html", {"balances": balances})
+
+
+@login_required
+def balance_usd(request):
+    balances = get_user_balances(request.user)
+    return render(request, "balance/usd.html", {"balances": balances})
+
+
+@login_required
+def balance_eur(request):
+    balances = get_user_balances(request.user)
+    return render(request, "balance/eur.html", {"balances": balances})
+
+
+@login_required
+def finance_chatbot_view(request):
+    if request.method == "POST":
+        user_input = request.POST.get("message")
+        # Retrieve history from session
+        session_history = request.session.get("chat_history", [])
+
+        client = genai.Client(api_key=my_api_key)
+
+        system_instruction = (
+            "You are a specialized Personal Finance Assistant for Spanish speakers. "
+            "All your responses MUST be in Spanish. "
+            "Focus only on budgeting, savings, and financial advice. "
+            "If the user asks about unrelated topics, politely decline in Spanish."
+        )
+
+        chat = client.chats.create(
+            model="gemini-2.5-flash",
+            config=types.GenerateContentConfig(system_instruction=system_instruction),
+            history=session_history,
+        )
+
+        response = chat.send_message(user_input)
+
+        # FIX: The new SDK stores history in chat.core._history or
+        # you can manually append the new turn to your session_history
+        new_history = session_history
+        new_history.append({"role": "user", "parts": [{"text": user_input}]})
+        new_history.append({"role": "model", "parts": [{"text": response.text}]})
+
+        # Save back to session
+        request.session["chat_history"] = new_history
+
+        return JsonResponse({"response": response.text})
+
+    return render(request, "core/chatbot/index.html")
 
 
 class TransactionData(BaseModel):
@@ -24,9 +142,10 @@ class TransactionData(BaseModel):
     total_amount: float
 
 
+@login_required
 def analyze_transaction_image(request):
     if request.method == "POST" and request.FILES.get("image"):
-        client = genai.Client(api_key="AIzaSyC5nfGQ3OY4aypyXVsfUWR66b6Ad4dxyaY")
+        client = genai.Client(api_key=my_api_key)
         img_file = request.FILES["image"]
         img = Image.open(img_file)
 
@@ -67,6 +186,7 @@ class TransactionFilter(django_filters.FilterSet):
         fields = ["category", "type", "currency"]
 
 
+@login_required
 def exchange_rate_view(request):
     if request.method == "POST":
         data = get_bcv_rates()

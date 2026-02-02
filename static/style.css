@@ -1,0 +1,9 @@
+@view-transition {
+    navigation: auto;
+}
+
+@import "tailwindcss";
+
+.active-nav-balance {
+    view-timeline-name: active-nav-balance;
+}

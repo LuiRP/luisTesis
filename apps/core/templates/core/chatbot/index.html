@@ -1,0 +1,66 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    <style>
+        .rich-text-content p { margin-bottom: 10px; }
+        .rich-text-content ul { padding-left: 20px; list-style-type: disc; margin-bottom: 10px; }
+        .rich-text-content ol { padding-left: 20px; list-style-type: decimal; margin-bottom: 10px; }
+        .rich-text-content strong { font-weight: bold; color: #1a1a1a; }
+        .rich-text-content code { background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px; }
+    </style>
+    <h1>Chatbot de Finanzas</h1>
+    <div id="chat-window">
+        <ul id="message-list">
+            <li>
+                <strong>Asistente:</strong> ¡Hola! ¿En qué puedo ayudarte hoy?
+            </li>
+        </ul>
+    </div>
+    <form id="chat-form">
+        {% csrf_token %}
+        <input type="text" id="user-input" placeholder="Pregunta algo..." required>
+        <button type="submit">Enviar</button>
+    </form>
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const inputField = document.getElementById('user-input');
+            const message = inputField.value;
+            const messageList = document.getElementById('message-list');
+
+            messageList.innerHTML += `<li><strong>Tú:</strong> ${message}</li>`;
+            inputField.value = '';
+
+            try {
+                const response = await fetch('{% url "finance_chatbot_view" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ 'message': message })
+                });
+
+                const data = await response.json();
+
+        if (data.response) {
+            // 1. Convert Markdown to HTML using marked.parse()
+            const rawHtml = marked.parse(data.response);
+            
+            // 2. Append to the list
+            messageList.innerHTML += `
+                <li style="margin-bottom: 15px;">
+                    <strong>Asistente:</strong> 
+                    <div class="rich-text-content">${rawHtml}</div>
+                </li>`;
+        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+
+                    // Scroll to bottom
+                    const window = document.getElementById('chat-window');
+                    window.scrollTop = window.scrollHeight;
+                });
+    </script>
+{% endblock content %}

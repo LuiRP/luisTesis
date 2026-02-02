@@ -1,0 +1,5 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+    {% include "partials/balance/nav.html" with active="bs" %}
+    {% include "partials/balance/card.html" with currency="Bolivar" symbol="Bs" balance=balances.total_ves color1="orange" color2="yellow" color3="amber" %}
+{% endblock content %}
