@@ -161,7 +161,7 @@ ACCOUNT_SIGNUP_FORM_CLASS = "apps.users.forms.ExpandedSignUpForm"
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/accounts/profile"
 LOGIN_REDIRECT_URL = "/"
 
-ALLOWED_HOSTS = ["https://luistesis.onrender.com", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["luistesis.onrender.com", "localhost", "127.0.0.1"]
 
 PWA_APP_NAME = "V-Vallet"
 PWA_APP_DESCRIPTION = "Aplicación Móvil para la Simplificación del Seguimiento de las Finanzas Personales de los Estudiantes de Ingeniería informática de la Unellez, VPDS"
