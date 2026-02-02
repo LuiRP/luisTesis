@@ -1,71 +1,209 @@
 {% extends "layouts/base.html" %}
 {% load neapolitan %}
+{% load mathfilters %}
+{% block header %}
+  {% if object %}
+    Editar Transacción
+  {% else %}
+    Nueva Transacción
+  {% endif %}
+{% endblock header %}
 {% block content %}
-  {% block header %}
-    {% if object %}
-      Editar transacción
-    {% else %}
-      Crear transacción
-    {% endif %}
-  {% endblock header %}
-  <div>
-    <div class="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">
-      <label class="block text-sm font-medium text-gray-700">Scan Receipt/List</label>
+  <div class="max-w-md mx-auto pb-24 px-2">
+    <div class="mb-8 p-6 border-2 border-dashed border-orange-200 rounded-2xl bg-orange-50/50 text-center group transition-colors hover:border-orange-400">
+      <div class="mb-3 text-orange-400">
+        <i class="bi bi-stars text-2xl"></i>
+      </div>
+      <label class="block text-xs font-bold text-orange-600 uppercase tracking-widest mb-2">Escanear Recibo</label>
       <input type="file"
              id="imageScanner"
              accept="image/*"
-             class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+             class="block w-full text-xs text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-orange-200 file:text-orange-700 hover:file:bg-orange-300 cursor-pointer">
       <button type="button"
               id="scanBtn"
-              class="mt-2 text-xs text-indigo-600 font-bold uppercase tracking-wider">✨ Auto-fill Description</button>
+              class="mt-4 w-full py-2 px-4 bg-white border border-orange-200 rounded-xl text-[10px] font-mono font-bold text-orange-600 uppercase tracking-tighter shadow-sm active:scale-95 transition-all">
+        ✨ Auto-completar con IA
+      </button>
     </div>
     <form method="post"
           {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}
           action="{% if object %}{{ update_view_url }}{% else %}{{ create_view_url }}{% endif %}"
-          class="dl-form"
+          class="space-y-5"
           novalidate>
       {% csrf_token %}
-      {{ form }}
-      <button type="submit"
-              class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-        Save
-      </button>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border-b-2 border-orange-100 space-y-4">
+        {% for field in form %}
+          <div class="flex flex-col gap-1">
+            <label for="{{ field.id_for_label }}"
+                   class="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+              {{ field.label }}
+            </label>
+            <div class="transaction-input-wrapper">{{ field }}</div>
+            {% if field.errors %}<p class="text-[10px] text-rose-500 font-bold mt-1">{{ field.errors.0 }}</p>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="flex flex-col gap-3 pt-4">
+        <button type="submit"
+                class="w-full bg-linear-to-b from-orange-300 to-amber-200 text-neutral-700 py-4 rounded-xl font-bold shadow-md border-b-4 border-orange-300 active:border-b-0 active:translate-y-1 transition-all">
+          Guardar Transacción
+        </button>
+        <a href="{% url 'transaction-list' %}"
+           class="text-center text-xs font-bold text-neutral-400 uppercase py-2">Cancelar</a>
+      </div>
     </form>
   </div>
-  <script>
-    document.getElementById('scanBtn').addEventListener('click', async () => {
-      const fileInput = document.getElementById('imageScanner');
-      if (!fileInput.files[0]) return alert("Please select an image first!");
-
-      const formData = new FormData();
-      formData.append('image', fileInput.files[0]);
-      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-
-      const btn = document.getElementById('scanBtn');
-      btn.innerText = "Analyzing...";
-
-      try {
-        const response = await fetch('/transactions/analyze-image/', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
-        
-        // Fill the fields automatically
-        document.getElementById('id_description').value = data.articles;
-        document.getElementById('id_total_amount').value = data.total_amount;
-        
-        // Match the date field (ensure your date input is type="date" or "datetime-local")
-        if (data.date) {
-            // If it's a DateTimeField, it might need 'YYYY-MM-DDTHH:MM'
-            document.getElementById('id_created_at').value = data.date; 
-        }
-
-        btn.innerText = "✨ Auto-filled!";
-    } catch (error) {
-        console.error(error);
-        btn.innerText = "Error";
+  <style>
+    /* Estilizado de los inputs de Django */
+    .transaction-input-wrapper input, 
+    .transaction-input-wrapper select, 
+    .transaction-input-wrapper textarea {
+        width: 100%;
+        background-color: #fafafa;
+        border: 1px solid #fed7aa; /* orange-200 */
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        color: #404040;
+        transition: all 0.2s;
     }
-    });
+
+    .transaction-input-wrapper input:focus, 
+    .transaction-input-wrapper select:focus, 
+    .transaction-input-wrapper textarea:focus {
+        outline: none;
+        border-color: #fb923c; /* orange-400 */
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(251, 146, 60, 0.1);
+    }
+
+    /* Checkbox especial */
+    .transaction-input-wrapper input[type="checkbox"] {
+        width: auto;
+        margin-right: 0.5rem;
+        accent-color: #f97316;
+    }
+  </style>
+  <script>
+    window.addEventListener('load', function () {
+    /** 1. LOGIC FOR CREATED_AT **/
+    const dateInput = document.querySelector('input[name="created_at"]');
+    if (dateInput) {
+        dateInput.type = 'datetime-local';
+        const now = new Date();
+        const formattedNow = now.toLocaleString('sv-SE').replace(' ', 'T').slice(0, 16);
+        dateInput.max = formattedNow;
+        if (dateInput.value) {
+            const currentVal = new Date(dateInput.value);
+            if (!isNaN(currentVal)) {
+                dateInput.value = currentVal.toLocaleString('sv-SE').replace(' ', 'T').slice(0, 16);
+            }
+        }
+    }
+
+    /** 2. LOGIC FOR EXCHANGE RATES & CURRENCY **/
+    const currencySelect = document.querySelector('select[name="currency"]');
+    const isCustomCheckbox = document.querySelector('input[name="is_custom"]');
+    const standardRateInput = document.querySelector('select[name="exchange_rate"]');
+    const customRateInput = document.querySelector('input[name="exchange_custom_rate"]');
+
+    if (currencySelect && isCustomCheckbox) {
+        const updateVisibility = () => {
+            // Buscamos el contenedor principal de cada campo (el que tiene gap-1)
+            const standardWrapper = standardRateInput?.closest('.flex.flex-col.gap-1');
+            const customWrapper = customRateInput?.closest('.flex.flex-col.gap-1');
+            const checkboxWrapper = isCustomCheckbox?.closest('.flex.flex-col.gap-1');
+
+            if (currencySelect.value === 'VES') {
+                if (standardWrapper) standardWrapper.style.display = 'none';
+                if (customWrapper) customWrapper.style.display = 'none';
+                if (checkboxWrapper) checkboxWrapper.style.display = 'none';
+
+                if (standardRateInput) standardRateInput.value = "";
+                if (customRateInput) customRateInput.value = "";
+                isCustomCheckbox.checked = false;
+            } 
+            else {
+                if (checkboxWrapper) checkboxWrapper.style.display = 'flex';
+
+                if (isCustomCheckbox.checked) {
+                    if (customWrapper) customWrapper.style.display = 'flex';
+                    if (standardWrapper) standardWrapper.style.display = 'none';
+                } else {
+                    if (customWrapper) customWrapper.style.display = 'none';
+                    if (standardWrapper) standardWrapper.style.display = 'flex';
+                }
+            }
+        };
+
+        updateVisibility();
+        currencySelect.addEventListener('change', updateVisibility);
+        isCustomCheckbox.addEventListener('change', updateVisibility);
+    }
+
+    /** 3. IA SCANNER LOGIC **/
+    const scanBtn = document.getElementById('scanBtn');
+    if (scanBtn) {
+        scanBtn.addEventListener('click', async () => {
+            const fileInput = document.getElementById('imageScanner');
+            if (!fileInput.files[0]) return alert("¡Por favor, selecciona una imagen primero!");
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            scanBtn.innerText = "Analizando...";
+            scanBtn.disabled = true;
+
+            try {
+                const response = await fetch('/transactions/analyze-image/', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if(data.articles) document.getElementById('id_description').value = data.articles;
+                if(data.total_amount) document.getElementById('id_total_amount').value = data.total_amount;
+                if(data.date) document.getElementById('id_created_at').value = data.date;
+
+                scanBtn.innerText = "✨ ¡Completado!";
+            } catch (error) {
+                console.error(error);
+                scanBtn.innerText = "Error";
+            } finally {
+                setTimeout(() => {
+                    scanBtn.innerText = "✨ Auto-completar con IA";
+                    scanBtn.disabled = false;
+                }, 3000);
+            }
+        });
+    }
+});
+const typeSelect = document.querySelector('select[name="type"]');
+    const amountInput = document.querySelector('input[name="total_amount"]');
+
+    if (typeSelect && amountInput) {
+        const applySign = () => {
+            let value = amountInput.value;
+            if (!value) return;
+
+            // Removemos cualquier signo existente para limpiar el número
+            let absoluteValue = value.replace(/^-/, '');
+
+            if (typeSelect.value === 'factura') {
+                // Si es factura y no tiene menos, se lo ponemos
+                amountInput.value = '-' + absoluteValue;
+            } else {
+                // Si es pago o ajuste, nos aseguramos que sea positivo
+                amountInput.value = absoluteValue;
+            }
+        };
+
+        // Escuchar cambios en el tipo (Factura/Pago)
+        typeSelect.addEventListener('change', applySign);
+        
+        // Escuchar mientras el usuario escribe en el monto
+        amountInput.addEventListener('blur', applySign); 
+    }
   </script>
 {% endblock content %}

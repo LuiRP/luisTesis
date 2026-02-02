@@ -1,69 +1,130 @@
 {% extends "layouts/base.html" %}
 {% block header %}
-    Consejero Financiero AI
+    Asesor IA
 {% endblock header %}
 {% block content %}
     <style>
-        .rich-text-content p { margin-bottom: 10px; }
-        .rich-text-content ul { padding-left: 20px; list-style-type: disc; margin-bottom: 10px; }
-        .rich-text-content ol { padding-left: 20px; list-style-type: decimal; margin-bottom: 10px; }
-        .rich-text-content strong { font-weight: bold; color: #1a1a1a; }
-        .rich-text-content code { background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px; }
+    .rich-text-content p { margin-bottom: 0.5rem; }
+    .rich-text-content ul { padding-left: 1rem; list-style-type: disc; margin-bottom: 0.5rem; }
+    
+    /* Smooth transition for new messages */
+    .message-fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    #chat-window::-webkit-scrollbar { display: none; }
+    #chat-window { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-    <h1>Chatbot de Finanzas</h1>
-    <div id="chat-window">
-        <ul id="message-list">
-            <li>
-                <strong>Asistente:</strong> ¡Hola! ¿En qué puedo ayudarte hoy?
-            </li>
-        </ul>
+    <div class="flex flex-col h-[calc(100vh-185px)]">
+        <div id="chat-window" class="flex-1 overflow-y-auto space-y-6 pb-4">
+            <div id="message-list" class="flex flex-col space-y-6">
+                <div class="flex items-start gap-2 message-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-orange-300 flex-shrink-0 flex items-center justify-center text-white shadow-sm border border-orange-200">
+                        <i class="bi bi-robot text-sm"></i>
+                    </div>
+                    <div class="bg-white border-b-2 border-orange-100 rounded-lg rounded-tl-none px-3 py-2 max-w-[80%] text-neutral-800 shadow-sm">
+                        <p class="text-[10px] font-mono uppercase text-orange-400 mb-1">Asesor AI</p>
+                        <p class="text-sm">¡Hola! ¿En qué puedo ayudarte con tus finanzas hoy?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-orange-100">
+            <form id="chat-form" class="flex gap-2">
+                {% csrf_token %}
+                <input type="text"
+                       id="user-input"
+                       class="flex-1 bg-white border-2 border-orange-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-orange-300 shadow-xs"
+                       placeholder="Escribe un mensaje..."
+                       required>
+                <button type="submit"
+                        class="bg-linear-to-b from-orange-300 to-amber-200 text-neutral-600 px-4 py-2 rounded-2xl border-b-2 border-orange-300 active:scale-95 transition-all">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+        </div>
     </div>
-    <form id="chat-form">
-        {% csrf_token %}
-        <input type="text" id="user-input" placeholder="Pregunta algo..." required>
-        <button type="submit">Enviar</button>
-    </form>
     <script>
-        document.getElementById('chat-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const inputField = document.getElementById('user-input');
-            const message = inputField.value;
-            const messageList = document.getElementById('message-list');
+        const userProfileUrl = "{{ request.user.profile_picture.url }}";
+const defaultAvatar = '<i class="bi bi-person-fill text-sm"></i>';
+    const chatForm = document.getElementById('chat-form');
+    const inputField = document.getElementById('user-input');
+    const messageList = document.getElementById('message-list');
+    const chatWindow = document.getElementById('chat-window');
 
-            messageList.innerHTML += `<li><strong>Tú:</strong> ${message}</li>`;
-            inputField.value = '';
+    const scrollToBottom = () => {
+        chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+    };
 
-            try {
-                const response = await fetch('{% url "finance_chatbot_view" %}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({ 'message': message })
-                });
+    const userAvatarHtml = userProfileUrl 
+    ? `<img src="${userProfileUrl}" class="w-full h-full rounded-full object-cover">`
+    : defaultAvatar;
 
-                const data = await response.json();
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const message = inputField.value;
+        if (!message) return;
 
-        if (data.response) {
-            // 1. Convert Markdown to HTML using marked.parse()
-            const rawHtml = marked.parse(data.response);
-            
-            // 2. Append to the list
-            messageList.innerHTML += `
-                <li style="margin-bottom: 15px;">
-                    <strong>Asistente:</strong> 
-                    <div class="rich-text-content">${rawHtml}</div>
-                </li>`;
+        // User Message with Profile Avatar
+        messageList.innerHTML += `
+            <div class="flex items-start gap-2 justify-end message-fade-in">
+                <div class="bg-orange-50 border-b-2 border-orange-200 rounded-lg rounded-tr-none px-3 py-2 max-w-[80%] text-neutral-800 shadow-sm">
+                    <p class="text-[10px] font-mono uppercase text-orange-500 mb-1 text-right">Tú</p>
+                    <p class="text-sm">${message}</p>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-amber-400 flex-shrink-0 flex items-center justify-center text-white shadow-sm border border-amber-300">
+                    ${userAvatarHtml}
+                </div>
+            </div>`;
+        
+        inputField.value = '';
+        scrollToBottom();
+
+        // Loading indicator
+        const loadingId = 'loading-' + Date.now();
+        messageList.innerHTML += `
+            <div id="${loadingId}" class="flex items-start gap-2 opacity-50 message-fade-in">
+                <div class="w-8 h-8 rounded-full bg-gray-300 flex-shrink-0"></div>
+                <div class="bg-white border-b-2 border-gray-100 rounded-lg px-3 py-2 text-xs font-mono">
+                    Pensando...
+                </div>
+            </div>`;
+        scrollToBottom();
+
+        try {
+            const response = await fetch('{% url "finance_chatbot_view" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ 'message': message })
+            });
+
+            const data = await response.json();
+            document.getElementById(loadingId).remove();
+
+            if (data.response) {
+                const rawHtml = marked.parse(data.response);
+                messageList.innerHTML += `
+                    <div class="flex items-start gap-2 message-fade-in">
+                        <div class="w-8 h-8 rounded-full bg-orange-300 flex-shrink-0 flex items-center justify-center text-white shadow-sm border border-orange-200">
+                            <i class="bi bi-robot text-sm"></i>
+                        </div>
+                        <div class="bg-white border-b-2 border-orange-100 rounded-lg rounded-tl-none px-3 py-2 max-w-[80%] text-neutral-800 shadow-sm">
+                            <p class="text-[10px] font-mono uppercase text-orange-400 mb-1">Asesor AI</p>
+                            <div class="rich-text-content text-sm">${rawHtml}</div>
+                        </div>
+                    </div>`;
+            }
+        } catch (error) {
+            document.getElementById(loadingId).innerText = "Error de conexión.";
         }
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
-
-                    // Scroll to bottom
-                    const window = document.getElementById('chat-window');
-                    window.scrollTop = window.scrollHeight;
-                });
+        scrollToBottom();
+    });
     </script>
 {% endblock content %}

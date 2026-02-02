@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "neapolitan",
     "django_filters",
+    "mathfilters",
 ]
 
 if DEBUG:

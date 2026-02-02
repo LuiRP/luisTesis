@@ -18,11 +18,12 @@ from django.http import JsonResponse
 import json
 from google.genai import types
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 my_api_key = "AIzaSyC5nfGQ3OY4aypyXVsfUWR66b6Ad4dxyaY"
 
 from django.db.models import Sum, F, Case, When, DecimalField
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, TruncMonth
 
 
 def get_user_balances(user):
@@ -190,27 +191,28 @@ class TransactionFilter(django_filters.FilterSet):
 def exchange_rate_view(request):
     if request.method == "POST":
         data = get_bcv_rates()
-
         if "error" not in data:
             try:
                 usd_val = Decimal(data["USD"].replace(".", "").replace(",", "."))
                 eur_val = Decimal(data["EUR"].replace(".", "").replace(",", "."))
-                try:
-                    ExchangeRateModel.objects.create(
-                        user=request.user,
-                        usd_rate=usd_val,
-                        eur_rate=eur_val,
-                        is_official=True,
-                    )
-                except IntegrityError:
-                    pass
-
-            except Exception:
+                ExchangeRateModel.objects.create(
+                    user=request.user,
+                    usd_rate=usd_val,
+                    eur_rate=eur_val,
+                    is_official=True,
+                )
+            except (IntegrityError, Exception):
                 pass
-
         return redirect("exchange_rate")
-    latest_rate = ExchangeRateModel.objects.order_by("-created_at").first()
-    return render(request, "balance/exchange_rate.html", {"latest_rate": latest_rate})
+
+    # Pagination Logic
+    rate_list = ExchangeRateModel.objects.all().order_by("-created_at")
+    paginator = Paginator(rate_list, 4)  # Show 10 rates per page
+
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "balance/exchange_rate.html", {"page_obj": page_obj})
 
 
 class TransactionCRUDView(CRUDView):
@@ -238,8 +240,80 @@ class TransactionCRUDView(CRUDView):
         return super().get_queryset().filter(user=self.request.user)
 
 
+@login_required
 def statistics_view(request):
-    return render(request, "statistics/index.html")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    # Calculate expenses in VES
+    qs = Transaction.objects.filter(user=request.user)
+
+    if start_date:
+        qs = qs.filter(created_at__date__gte=start_date)
+    if end_date:
+        qs = qs.filter(created_at__date__lte=end_date)
+
+    qs = qs.annotate(
+        eff_rate=Case(
+            When(is_custom=True, then=F("exchange_custom_rate")),
+            When(currency="USD", then=F("exchange_rate__usd_rate")),
+            When(currency="EUR", then=F("exchange_rate__eur_rate")),
+            default=1,
+            output_field=DecimalField(),
+        )
+    ).annotate(
+        amount_ves=Case(
+            When(currency="VES", then=F("total_amount")),
+            default=F("total_amount") * F("eff_rate"),
+            output_field=DecimalField(),
+        )
+    )
+
+    # By Category
+    by_category = (
+        qs.values("category").annotate(total=Sum("amount_ves")).order_by("-total")
+    )
+
+    cat_labels = []
+    cat_data = []
+    for item in by_category:
+        try:
+            label = Transaction.Category(item["category"]).label
+        except ValueError:
+            label = item["category"]
+        cat_labels.append(label)
+        cat_data.append(float(item["total"] or 0))
+
+    # By Month
+    by_month = (
+        qs.annotate(month=TruncMonth("created_at"))
+        .values("month")
+        .annotate(total=Sum("amount_ves"))
+        .order_by("month")
+    )
+
+    month_labels = [item["month"].strftime("%Y-%m") for item in by_month]
+    month_data = [float(item["total"] or 0) for item in by_month]
+
+    # By Currency
+    by_currency = (
+        qs.values("currency").annotate(total=Sum("amount_ves")).order_by("-total")
+    )
+    curr_labels = [item["currency"] for item in by_currency]
+    curr_data = [float(item["total"] or 0) for item in by_currency]
+
+    context = {
+        "cat_labels": json.dumps(cat_labels),
+        "cat_data": json.dumps(cat_data),
+        "month_labels": json.dumps(month_labels),
+        "month_data": json.dumps(month_data),
+        "curr_labels": json.dumps(curr_labels),
+        "curr_data": json.dumps(curr_data),
+        "start_date": start_date,
+        "end_date": end_date,
+        "transactions": qs.order_by("-created_at"),
+    }
+    return render(request, "statistics/index.html", context)
 
 
 def advice_view(request):

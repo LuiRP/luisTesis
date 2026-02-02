@@ -1,9 +1,96 @@
 {% extends "layouts/base.html" %}
-{% load neapolitan %}
+{% load mathfilters %}
 {% block header %}
-    Detalles de transacción
+    Detalle de Transacción
 {% endblock header %}
 {% block content %}
-    <p>{{ object }}</p>
-    {% object_detail object view.fields %}
-{% endblock %}
+    <div class="max-w-md mx-auto pb-24">
+        <a href="{% url 'transaction-list' %}"
+           class="inline-flex items-center text-orange-500 text-sm font-bold mb-6 hover:text-orange-600 transition-colors">
+            <i class="bi bi-arrow-left mr-2"></i> Volver al historial
+        </a>
+        <div class="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden">
+            <div class="bg-linear-to-b from-orange-50 to-white p-6 text-center border-b border-dashed border-orange-200 relative">
+                <div class="absolute -bottom-2 -left-2 w-4 h-4 bg-neutral-100 rounded-full border border-orange-100"></div>
+                <div class="absolute -bottom-2 -right-2 w-4 h-4 bg-neutral-100 rounded-full border border-orange-100"></div>
+                <div class="w-16 h-16 rounded-full bg-white shadow-sm border border-orange-100 flex items-center justify-center text-orange-500 text-2xl mx-auto mb-3">
+                    {% if object.category == 'comida' %}
+                        <i class="bi bi-egg-fried"></i>
+                    {% elif object.category == 'ocio' %}
+                        <i class="bi bi-controller"></i>
+                    {% elif object.category == 'transporte' %}
+                        <i class="bi bi-bus-front"></i>
+                    {% elif object.category == 'salud' %}
+                        <i class="bi bi-heart-pulse"></i>
+                    {% elif object.category == 'educacion' %}
+                        <i class="bi bi-book"></i>
+                    {% elif object.category == 'hogar' %}
+                        <i class="bi bi-house-door"></i>
+                    {% elif object.category == 'ropa' %}
+                        <i class="bi bi-handbag"></i>
+                    {% elif object.category == 'servicios' %}
+                        <i class="bi bi-lightning-charge"></i>
+                    {% else %}
+                        <i class="bi bi-three-dots"></i>
+                    {% endif %}
+                </div>
+                <h2 class="text-2xl font-mono font-bold {% if object.type == 'factura' %}text-rose-500{% elif object.type == 'pago' %}text-emerald-500{% else %}text-orange-500{% endif %}">
+                    {% if object.type == 'factura' %}
+                        -
+                    {% elif object.type == 'pago' %}
+                        +
+                    {% endif %}
+                    {{ object.total_amount|abs }} {{ object.currency }}
+                </h2>
+                <p class="text-sm font-bold text-neutral-800">{{ object.get_category_display }}</p>
+                <p class="text-[10px] text-neutral-400 uppercase font-mono mt-1">{{ object.created_at|date:"d F Y, H:i" }}</p>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-[10px] uppercase text-neutral-400 font-bold mb-1">Tipo</p>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border {% if object.type == 'factura' %}border-rose-100 text-rose-600 bg-rose-50 {% elif object.type == 'pago' %}border-emerald-100 text-emerald-600 bg-emerald-50 {% else %}border-orange-100 text-orange-600 bg-orange-50{% endif %}">
+                            {{ object.get_type_display }}
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase text-neutral-400 font-bold mb-1">Divisa Original</p>
+                        <p class="font-mono text-neutral-700">{{ object.get_currency_display }}</p>
+                    </div>
+                </div>
+                <hr class="border-orange-50">
+                <div class="bg-neutral-50 rounded-xl p-4 border border-neutral-100">
+                    <p class="text-[10px] uppercase text-neutral-400 font-bold mb-2">Información de Cambio</p>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-neutral-500">Tasa Aplicada:</span>
+                            <span class="font-mono font-bold text-neutral-700">
+                                {% if object.is_custom %}
+                                    {{ object.exchange_custom_rate }} (Manual)
+                                {% else %}
+                                    {{ object.exchange_rate.usd_rate|default:"N/A" }} (BCV)
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if object.description %}
+                            <div class="pt-2">
+                                <p class="text-[10px] uppercase text-neutral-400 font-bold mb-1">Artículos / Notas</p>
+                                <p class="text-sm text-neutral-600 italic">"{{ object.description }}"</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <a href="{% url 'transaction-update' object.pk %}"
+                       class="flex-1 bg-white border-2 border-orange-200 text-orange-500 py-3 rounded-xl text-sm font-bold text-center active:scale-95 transition-all">
+                        <i class="bi bi-pencil mr-1"></i> Editar
+                    </a>
+                    <a href="{% url 'transaction-delete' object.pk %}"
+                       class="flex-1 bg-rose-50 border-2 border-rose-100 text-rose-500 py-3 rounded-xl text-sm font-bold text-center active:scale-95 transition-all">
+                        <i class="bi bi-trash mr-1"></i> Eliminar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,23 +1,76 @@
 {% extends "layouts/base.html" %}
 {% block header %}
-    Tasas monetarias
+    Tasas Monetarias
 {% endblock header %}
 {% block content %}
-    {% if latest_rate %}
-        <p>
-            <strong>Value Date:</strong> {{ latest_rate.date }}
-        </p>
-        <p>
-            <strong>Recorded on:</strong> {{ latest_rate.created_at|date:"d/m/Y" }} at {{ latest_rate.created_at|time:"H:i:s" }}
-        </p>
-        <p>USD: {{ latest_rate.usd_rate }}</p>
-        <p>EUR: {{ latest_rate.eur_rate }}</p>
-    {% else %}
-        <p>No rates saved yet.</p>
-    {% endif %}
-    <hr>
-    <form method="post" action="">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Get Exchange Rates from BCV</button>
-    </form>
+    <div class="max-w-md mx-auto pb-24">
+        <form method="post" action="" class="mb-6">
+            {% csrf_token %}
+            <button type="submit"
+                    class="w-full bg-linear-to-b from-orange-300 to-amber-200 text-neutral-700 font-bold py-3 rounded-xl border-b-4 border-orange-300 active:border-b-0 active:translate-y-1 transition-all shadow-md flex items-center justify-center gap-2">
+                <i class="bi bi-arrow-clockwise text-lg"></i>
+                Actualizar Tasas (BCV)
+            </button>
+        </form>
+        <div class="flex items-center gap-2 mb-4">
+            <h2 class="text-sm font-mono text-orange-600 uppercase tracking-widest">Historial de Cambios</h2>
+            <div class="flex-1 h-px bg-orange-200"></div>
+        </div>
+        {% if page_obj %}
+            <div class="space-y-4">
+                {% for rate in page_obj %}
+                    <div class="bg-white border-b-2 border-orange-100 rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-mono bg-orange-50 text-orange-600 px-2 py-1 rounded">{{ rate.date|default:"N/A" }}</span>
+                            <span class="text-[10px] text-neutral-400">
+                                <i class="bi bi-clock mr-1"></i>{{ rate.created_at|date:"d/m/Y H:i" }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-neutral-50 rounded-lg p-3 border border-neutral-100">
+                                <p class="text-[10px] uppercase text-neutral-500 font-bold mb-1">Dólar (USD)</p>
+                                <p class="text-md font-mono text-neutral-800">Bs. {{ rate.usd_rate }}</p>
+                            </div>
+                            <div class="bg-neutral-50 rounded-lg p-3 border border-neutral-100">
+                                <p class="text-[10px] uppercase text-neutral-500 font-bold mb-1">Euro (EUR)</p>
+                                <p class="text-md font-mono text-neutral-800">Bs. {{ rate.eur_rate }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <nav class="mt-8 flex flex-col items-center gap-4">
+                <span class="text-xs font-mono text-neutral-500">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+                <div class="flex items-center gap-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1"
+                           class="p-2 bg-white border border-orange-200 rounded-lg text-orange-600 shadow-sm">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}"
+                           class="px-4 py-2 bg-white border border-orange-200 rounded-lg text-orange-600 text-sm font-bold shadow-sm">
+                            Anterior
+                        </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}"
+                           class="px-4 py-2 bg-white border border-orange-200 rounded-lg text-orange-600 text-sm font-bold shadow-sm">
+                            Siguiente
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}"
+                           class="p-2 bg-white border border-orange-200 rounded-lg text-orange-600 shadow-sm">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </nav>
+        {% else %}
+            <div class="bg-orange-50 border border-orange-100 rounded-xl p-8 text-center">
+                <i class="bi bi-exclamation-circle text-orange-300 text-4xl mb-2"></i>
+                <p class="text-neutral-500 text-sm">No hay tasas registradas aún.</p>
+            </div>
+        {% endif %}
+    </div>
 {% endblock content %}

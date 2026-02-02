@@ -3,5 +3,104 @@
     Consejos
 {% endblock header %}
 {% block content %}
-    <h1>Consejos</h1>
+    <div class="max-w-2xl mx-auto space-y-4 pb-20">
+        <details class="group bg-white border-b-2 border-orange-200 rounded-lg shadow-sm overflow-hidden">
+            <summary class="list-none cursor-pointer p-4 flex items-center justify-between hover:bg-orange-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold">1</span>
+                    <h3 class="font-medium text-neutral-800">Cuentas Separadas</h3>
+                </div>
+                <i class="bi bi-chevron-down text-orange-400 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-4 pt-0 text-sm text-neutral-600 leading-relaxed space-y-3">
+                <p class="border-l-2 border-orange-200 pl-3 italic">
+                    La fuerza de voluntad falla; los sistemas no. Automatiza tu banca online:
+                </p>
+                <ul class="space-y-2">
+                    <li>
+                        <strong>Cuenta A (50%):</strong> Gastos fijos, facturas y renta.
+                    </li>
+                    <li>
+                        <strong>Cuenta B (20%):</strong> Inversión/Ahorro automático. Si no lo ves, no lo gastas.
+                    </li>
+                    <li>
+                        <strong>Cuenta C (30%):</strong> Ocio. Cuando llegue a cero, se acabaron las salidas.
+                    </li>
+                </ul>
+            </div>
+        </details>
+        <details class="group bg-white border-b-2 border-orange-200 rounded-lg shadow-sm overflow-hidden">
+            <summary class="list-none cursor-pointer p-4 flex items-center justify-between hover:bg-orange-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold">2</span>
+                    <h3 class="font-medium text-neutral-800">Valor vs. Precio</h3>
+                </div>
+                <i class="bi bi-chevron-down text-orange-400 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-4 pt-0 text-sm text-neutral-600 space-y-3">
+                <p>
+                    La educación financiera se fija en el <strong>valor</strong> (ahorro a largo plazo) no en el precio inmediato.
+                </p>
+                <div class="bg-amber-50 p-3 rounded-md">
+                    <p>
+                        <strong>Activos vs. Pasivos:</strong> Un activo pone dinero en tu bolsillo (acciones, alquileres); un pasivo lo saca (coche, suscripciones innecesarias).
+                    </p>
+                </div>
+                <p>Tu meta: Que tus activos paguen tus pasivos.</p>
+            </div>
+        </details>
+        <details class="group bg-white border-b-2 border-orange-200 rounded-lg shadow-sm overflow-hidden">
+            <summary class="list-none cursor-pointer p-4 flex items-center justify-between hover:bg-orange-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold">3</span>
+                    <h3 class="font-medium text-neutral-800">Inflación e Interés Real</h3>
+                </div>
+                <i class="bi bi-chevron-down text-orange-400 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-4 pt-0 text-sm text-neutral-600 space-y-3 font-mono">
+                <p class="text-xs">Ahorrar bajo el colchón es perder dinero.</p>
+                <div class="grid grid-cols-1 gap-2">
+                    <div class="border-t border-orange-100 pt-2">
+                        <span class="text-orange-600">Regla del 72:</span> Divide 72 por tu tasa de interés para saber cuándo duplicarás tu capital.
+                    </div>
+                    <div class="border-t border-orange-100 pt-2">
+                        <span class="text-orange-600">Interés Real:</span> Ganancia nominal menos inflación.
+                    </div>
+                </div>
+            </div>
+        </details>
+        <details class="group bg-white border-b-2 border-orange-200 rounded-lg shadow-sm overflow-hidden">
+            <summary class="list-none cursor-pointer p-4 flex items-center justify-between hover:bg-orange-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold">4</span>
+                    <h3 class="font-medium text-neutral-800">Protección Avanzada</h3>
+                </div>
+                <i class="bi bi-chevron-down text-orange-400 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-4 pt-0 text-sm text-neutral-600 space-y-3">
+                <p>Construye un "Foso" contra impuestos, crisis y devaluación.</p>
+                <p>
+                    <strong>Diversificación Geográfica:</strong> No tengas todo en un mismo país o moneda. Tener dólares o euros protege tu patrimonio si tu moneda local cae.
+                </p>
+            </div>
+        </details>
+        <details class="group bg-white border-b-2 border-orange-200 rounded-lg shadow-sm overflow-hidden">
+            <summary class="list-none cursor-pointer p-4 flex items-center justify-between hover:bg-orange-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold">5</span>
+                    <h3 class="font-medium text-neutral-800">Deuda Apalancada</h3>
+                </div>
+                <i class="bi bi-chevron-down text-orange-400 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="p-4 pt-0 text-sm text-neutral-600">
+                <p class="mb-3">La deuda es una herramienta de crecimiento mediante el apalancamiento:</p>
+                <div class="bg-neutral-50 p-3 border-l-4 border-amber-400 rounded">
+                    <p class="text-xs">
+                        Si compras una propiedad de $100k con $20k propios y sube un 5%, ganaste $5,000 (¡un 25% de retorno sobre tu inversión real!).
+                    </p>
+                </div>
+                <p class="mt-3 text-[10px] uppercase font-bold text-rose-500">Advertencia: Peligroso si el valor baja.</p>
+            </div>
+        </details>
+    </div>
 {% endblock content %}

@@ -1,7 +1,240 @@
 {% extends "layouts/base.html" %}
+{% now "Y-m-d" as today %}
 {% block header %}
-    Estadisticas
+    Estadísticas de Gastos
 {% endblock header %}
 {% block content %}
-    <h1>Estadisticas</h1>
+    <div class="bg-white shadow rounded-lg mb-8">
+        <details class="group bg-white rounded-lg shadow-sm border border-gray-200">
+            <summary class="list-none cursor-pointer px-4 py-5 sm:px-6 border-b border-gray-200 hover:bg-orange-50 transition-colors">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Filtrar por Fecha</h3>
+                    <svg class="w-5 h-5 text-gray-500 transition-transform duration-200 group-open:rotate-180 group-open:text-orange-500"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </summary>
+            <div class="px-4 py-5 sm:p-6">
+                <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700">Fecha Inicio</label>
+                        <input type="date"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm border p-2"
+                               id="start_date"
+                               name="start_date"
+                               value="{{ start_date|default:'' }}"
+                               max="{% now 'Y-m-d' %}">
+                    </div>
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700">Fecha Fin</label>
+                        <input type="date"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm border p-2"
+                               id="end_date"
+                               name="end_date"
+                               value="{{ end_date|default:'' }}"
+                               max="{% now 'Y-m-d' %}">
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="submit"
+                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:ring-2 focus:ring-orange-500">
+                            Filtrar
+                        </button>
+                        <a href="{% url 'statistics_view' %}"
+                           class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Limpiar
+                        </a>
+                        <button type="button"
+                                onclick="downloadPDF()"
+                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-500 hover:bg-red-600">
+                            <i class="bi bi-file-earmark-pdf mr-2"></i> PDF
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </details>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="bg-white shadow rounded-lg border-t-4 border-orange-500">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Gastos por Categoría (VES)</h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="h-80">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white shadow rounded-lg border-t-4 border-orange-500">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Gastos por Moneda (VES)</h3>
+            </div>
+            <div class="px-4 py-5 sm:p-6">
+                <div class="h-80">
+                    <canvas id="currencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white shadow rounded-lg mb-20 border-t-4 border-orange-500">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Gastos por Mes (VES)</h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+            <div class="h-80">
+                <canvas id="monthChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white shadow rounded-lg mb-8" hidden>
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Detalle de Transacciones</h3>
+        </div>
+        <div class="px-4 py-5 sm:p-6 overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200" id="transactionsTable">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Fecha
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Categoría
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Descripción
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Monto
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Moneda
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Monto (VES)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for t in transactions %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ t.created_at|date:"Y-m-d" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ t.get_category_display }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ t.description|truncatechars:30 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ t.total_amount }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ t.currency }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ t.amount_ves }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <table id="transactionsTable" hidden>
+    </table>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script>
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFontSize(18);
+        doc.setTextColor(225, 29, 72); // Rose/Deep Red for header
+        doc.text("Reporte de Gastos", 14, 22);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(100);
+        doc.text(`Generado: ${new Date().toLocaleDateString()}`, 14, 30);
+
+        const catCanvas = document.getElementById('categoryChart');
+        const currCanvas = document.getElementById('currencyChart');
+        const monthCanvas = document.getElementById('monthChart');
+
+        if (catCanvas) doc.addImage(catCanvas.toDataURL("image/png"), 'PNG', 14, 40, 80, 80);
+        if (currCanvas) doc.addImage(currCanvas.toDataURL("image/png"), 'PNG', 110, 40, 80, 80);
+        if (monthCanvas) doc.addImage(monthCanvas.toDataURL("image/png"), 'PNG', 14, 130, 180, 80);
+
+        doc.addPage();
+        doc.autoTable({
+            html: '#transactionsTable',
+            startY: 30,
+            theme: 'grid',
+            headStyles: { fillColor: [225, 29, 72] } // Rose/Deep Red Table Header
+        });
+        doc.save("reporte_gastos.pdf");
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // High-contrast Warm Palette (Sunset)
+        const warmPalette = [
+            '#BE123C', // Deep Rose
+            '#F59E0B', // Amber
+            '#FB923C', // Orange
+            '#E11D48', // Bright Rose
+            '#FBBF24', // Yellow Amber
+            '#EA580C', // Deep Orange
+            '#9F1239', // Maroon
+            '#D97706', // Dark Amber
+            '#F97316'  // Orange 500
+        ];
+
+        // Category Chart
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: {{ cat_labels|safe }},
+                datasets: [{
+                    data: {{ cat_data|safe }},
+                    backgroundColor: warmPalette,
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: { maintainAspectRatio: false }
+        });
+
+        // Currency Chart
+        new Chart(document.getElementById('currencyChart'), {
+            type: 'pie',
+            data: {
+                labels: {{ curr_labels|safe }},
+                datasets: [{
+                    data: {{ curr_data|safe }},
+                    backgroundColor: ['#EA580C', '#F59E0B', '#BE123C', '#F97316']
+                }]
+            },
+            options: { maintainAspectRatio: false }
+        });
+
+        // Monthly Chart
+        new Chart(document.getElementById('monthChart'), {
+            type: 'bar',
+            data: {
+                labels: {{ month_labels|safe }},
+                datasets: [{
+                    label: "Total (VES)",
+                    backgroundColor: "#F59E0B",
+                    hoverBackgroundColor: "#D97706",
+                    data: {{ month_data|safe }},
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    });
+    </script>
 {% endblock content %}
