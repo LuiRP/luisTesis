@@ -236,3 +236,11 @@ class TransactionCRUDView(CRUDView):
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
+
+
+def statistics_view(request):
+    return render(request, "statistics/index.html")
+
+
+def advice_view(request):
+    return render(request, "advice/index.html")

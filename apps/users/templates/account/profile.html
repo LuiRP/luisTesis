@@ -1,37 +1,49 @@
 {% extends "layouts/base.html" %}
+{% block header %}
+    Perfil
+{% endblock header %}
 {% block content %}
-    <h1>Perfil</h1>
-    <form action=""
-          method="post"
-          enctype="multipart/form-data"
-          x-data="{ submitForm() { $refs.form.submit() } }"
-          x-ref="form">
-        {% csrf_token %}
-        <input type="file"
-               name="profile_picture"
-               x-ref="fileInput"
-               @change="submitForm()"
-               hidden
-               accept="image/*">
-        <img src="{{ request.user.profile_picture.url }}"
-             alt="Foto de perfil"
-             @click="$refs.fileInput.click()"
-             width="200"
-             height="200">
-    </form>
-    <p>{{ request.user.first_name }} {{ request.user.last_name }}</p>
-    <p>{{ request.user.email }}</p>
-    <nav>
-        <ul>
-            <li>
-                <a href="{% url "account_email" %}">Cambiar correo electrónico</a>
-            </li>
-            <li>
-                <a href="{% url "account_change_password" %}">Cambiar contraseña</a>
-            </li>
-            <li>
-                <a href="{% url "account_logout" %}">Cerrar sesión</a>
-            </li>
-        </ul>
-    </nav>
+    <div class="flex flex-col items-center space-y-4">
+        <div>
+            <form action=""
+                  method="post"
+                  enctype="multipart/form-data"
+                  x-data="{ submitForm() { $refs.form.submit() } }"
+                  x-ref="form">
+                {% csrf_token %}
+                <input type="file"
+                       name="profile_picture"
+                       x-ref="fileInput"
+                       @change="submitForm()"
+                       hidden
+                       accept="image/*">
+                <img src="{{ request.user.profile_picture.url }}"
+                     class="rounded-full cursor-pointer border-4 border-orange-200"
+                     alt="Foto de perfil"
+                     @click="$refs.fileInput.click()"
+                     width="200"
+                     height="200">
+            </form>
+        </div>
+        <p class="text-neutral-700 bg-linear-to-b border-2 border-orange-200 from-orange-300 to-yellow-100  p-4 rounded-full px-16">
+            {{ request.user.first_name }} {{ request.user.last_name }}
+        </p>
+        <p class="opacity-75 text-orange-500 font-light">{{ request.user.email }}</p>
+        <nav class="w-full max-w-md">
+            <ul class="flex flex-col gap-2 mt-4 bg-neutral-50 rounded-lg ">
+                <a class="border-neutral-200 border-2 p-4 rounded-lg hover:bg-neutral-100"
+                   href="{% url "account_email" %}">
+                    <li>Cambiar correo electrónico</li>
+                </a>
+                <a class="border-neutral-200 border-2 p-4 rounded-lg hover:bg-neutral-100"
+                   href="{% url "account_change_password" %}">
+                    <li>Cambiar contraseña</li>
+                </a>
+                <a class="border-neutral-200 border-2 p-4 rounded-lg hover:bg-neutral-100"
+                   href="{% url "account_logout" %}">
+                    <li>Cerrar sesión</li>
+                </a>
+            </ul>
+        </nav>
+    </div>
 {% endblock content %}

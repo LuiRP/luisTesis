@@ -1,13 +1,13 @@
 {% extends "layouts/base.html" %}
 {% load neapolitan %}
 {% block content %}
-  <h1>
+  {% block header %}
     {% if object %}
-      Edit {{ object_verbose_name }}
+      Editar transacción
     {% else %}
-      Create {{ object_verbose_name }}
+      Crear transacción
     {% endif %}
-  </h1>
+  {% endblock header %}
   <div>
     <div class="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">
       <label class="block text-sm font-medium text-gray-700">Scan Receipt/List</label>

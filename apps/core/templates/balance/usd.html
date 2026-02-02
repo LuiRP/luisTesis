@@ -1,5 +1,9 @@
 {% extends "layouts/base.html" %}
+{% block header %}
+    Balance
+{% endblock header %}
 {% block content %}
     {% include "partials/balance/nav.html" with active="usd" %}
     {% include "partials/balance/card.html" with currency="Dolar" symbol="$" balance=balances.total_usd color1="green" color2="teal" color3="emerald" %}
+    {% include "partials/balance/sidenav.html" %}
 {% endblock content %}

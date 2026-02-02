@@ -1,0 +1,10 @@
+<ul class="flex flex-col gap-2 mt-56 bg-neutral-50 rounded-lg ">
+    <a class="border-neutral-200 border-2 p-4 rounded-lg hover:bg-neutral-100"
+       href="{% url 'transaction-list' %}?category=&type=ajuste&currency=&start_date=&end_date=">
+        <li>Ver ajustes realizados</li>
+    </a>
+    <a class="border-neutral-200 border-2 p-4 rounded-lg hover:bg-neutral-100"
+       href="{% url "transaction-create" %}">
+        <li>Realizar ajustes</li>
+    </a>
+</ul>

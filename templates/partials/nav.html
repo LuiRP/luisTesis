@@ -1,0 +1,48 @@
+<footer class="border-neutral-200 border-t-2 flex text-neutral-700 font-sans font-light px-4 py-2 bg-linear-to-b from-neutral-50 to-neutral-100 fixed bottom-0 left-0 right-0 justify-center ">
+    <nav class="w-full">
+        <ul class="flex justify-between text-center text-2xl">
+            <a href="{% url "balance_bs" %}"
+               class="flex-1 block py-4 opacity-50 {% if request.resolver_match.url_name in 'balance_bs balance_usd balance_eur' %}opacity-100 rounded-4xl from-orange-300 to-amber-200  bg-linear-to-b{% endif %}">
+                <li>
+                    <i class="bi bi-wallet{% if request.resolver_match.url_name in 'balance_bs balance_usd balance_eur' %}-fill{% endif %}"></i>
+                </li>
+            </a>
+            <a href="{% url "transaction-list" %}"
+               class="flex-1 block py-4 opacity-50 {% if request.resolver_match.url_name in 'transaction-list transaction-create transaction-update transaction-detail transaction-delete' %}opacity-100 rounded-4xl from-orange-300 to-amber-200  bg-linear-to-b{% endif %}">
+                <li>
+                    <i class="bi bi-cart{% if request.resolver_match.url_name in 'transaction-list transaction-create transaction-update transaction-detail transaction-delete' %}-fill{% endif %}"></i>
+                </li>
+            </a>
+            <a href="{% url "statistics_view" %}"
+               class="flex-1 block py-4 opacity-50 {% if request.resolver_match.url_name in 'statistics_view' %}opacity-100 rounded-4xl from-orange-300 to-amber-200  bg-linear-to-b{% endif %}">
+                <li>
+                    <i class="bi bi-pie-chart{% if request.resolver_match.url_name in 'statistics_view' %}-fill{% endif %}"></i>
+                </li>
+            </a>
+            <a href="{% url "exchange_rate" %}"
+               class="flex-1 block py-4 opacity-50 {% if request.resolver_match.url_name in 'exchange_rate' %}opacity-100 rounded-4xl from-orange-300 to-amber-200  bg-linear-to-b{% endif %}">
+                <li>
+                    <i class="bi bi-currency-exchange"></i>
+                </li>
+            </a>
+            <a href="{% url "finance_chatbot_view" %}"
+               class="flex-1 block py-4 opacity-50 {% if request.resolver_match.url_name in 'finance_chatbot_view' %}opacity-100 rounded-4xl from-orange-300 to-amber-200  bg-linear-to-b{% endif %}">
+                <li>
+                    <i class="bi bi-chat-left-dots{% if request.resolver_match.url_name in 'finance_chatbot_view' %}-fill{% endif %}"></i>
+                </li>
+            </a>
+            <a href="{% url "advice_view" %}"
+               class="flex-1 block py-4 opacity-50 {% if request.resolver_match.url_name in 'advice_view' %}opacity-100 rounded-4xl from-orange-300 to-amber-200  bg-linear-to-b{% endif %}">
+                <li>
+                    <i class="bi bi-exclamation-circle{% if request.resolver_match.url_name in 'advice_view' %}-fill{% endif %}"></i>
+                </li>
+            </a>
+            <a href="{% url "profile" %}"
+               class="flex-1 block py-4 opacity-50 {% if request.resolver_match.url_name in 'profile' %}opacity-100 rounded-4xl from-orange-300 to-amber-200  bg-linear-to-b{% endif %}">
+                <li>
+                    <i class="bi bi-person{% if request.resolver_match.url_name in 'profile' %}-fill{% endif %}"></i>
+                </li>
+            </a>
+        </ul>
+    </nav>
+</footer>

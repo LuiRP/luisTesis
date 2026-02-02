@@ -1,5 +1,8 @@
 {% extends "layouts/base.html" %}
 {% load neapolitan %}
+{% block header %}
+    Transacciones
+{% endblock header %}
 {% block content %}
     <h1>{{ object_verbose_name_plural|capfirst }}</h1>
     {% if create_view_url %}<a href="{{ create_view_url }}">Add new</a>{% endif %}

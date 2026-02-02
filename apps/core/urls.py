@@ -8,6 +8,8 @@ from .views import (
     balance_bs,
     balance_usd,
     balance_eur,
+    statistics_view,
+    advice_view,
 )
 
 urlpatterns = [
@@ -19,5 +21,7 @@ urlpatterns = [
         "transactions/analyze-image/", analyze_transaction_image, name="analyze_image"
     ),
     path("finance-chatbot/", finance_chatbot_view, name="finance_chatbot_view"),
+    path("statistics/", statistics_view, name="statistics_view"),
+    path("advice/", advice_view, name="advice_view"),
 ]
 urlpatterns += TransactionCRUDView.get_urls()

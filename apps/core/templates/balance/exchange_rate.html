@@ -1,21 +1,23 @@
-{% if messages %}
-    {% for message in messages %}<div class="alert {{ message.tags }}">{{ message }}</div>{% endfor %}
-{% endif %}
-<h3>Current Rates in DB</h3>
-{% if latest_rate %}
-    <p>
-        <strong>Value Date:</strong> {{ latest_rate.date }}
-    </p>
-    <p>
-        <strong>Recorded on:</strong> {{ latest_rate.created_at|date:"d/m/Y" }} at {{ latest_rate.created_at|time:"H:i:s" }}
-    </p>
-    <p>USD: {{ latest_rate.usd_rate }}</p>
-    <p>EUR: {{ latest_rate.eur_rate }}</p>
-{% else %}
-    <p>No rates saved yet.</p>
-{% endif %}
-<hr>
-<form method="post" action="">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-primary">Get Exchange Rates from BCV</button>
-</form>
+{% extends "layouts/base.html" %}
+{% block header %}
+    Tasas monetarias
+{% endblock header %}
+{% block content %}
+    {% if latest_rate %}
+        <p>
+            <strong>Value Date:</strong> {{ latest_rate.date }}
+        </p>
+        <p>
+            <strong>Recorded on:</strong> {{ latest_rate.created_at|date:"d/m/Y" }} at {{ latest_rate.created_at|time:"H:i:s" }}
+        </p>
+        <p>USD: {{ latest_rate.usd_rate }}</p>
+        <p>EUR: {{ latest_rate.eur_rate }}</p>
+    {% else %}
+        <p>No rates saved yet.</p>
+    {% endif %}
+    <hr>
+    <form method="post" action="">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Get Exchange Rates from BCV</button>
+    </form>
+{% endblock content %}

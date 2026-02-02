@@ -1,5 +1,8 @@
 {% extends "layouts/base.html" %}
 {% load neapolitan %}
+{% block header %}
+    Detalles de transacción
+{% endblock header %}
 {% block content %}
     <p>{{ object }}</p>
     {% object_detail object view.fields %}

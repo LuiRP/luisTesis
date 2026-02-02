@@ -25,7 +25,10 @@
   </head>
   <body>
     <header class="border-neutral-200 border-b-2 flex text-neutral-700 font-sans font-light px-4 py-3 bg-linear-to-b from-neutral-50 to-neutral-100">
-      <h1 class="text-3xl">Balance</h1>
+      <h1 class="text-3xl">
+        {% block header %}
+        {% endblock header %}
+      </h1>
     </header>
     <main class="p-4">
       {% block body %}
@@ -33,43 +36,7 @@
         {% endblock content %}
       {% endblock body %}
     </main>
-    <footer class="border-neutral-200 border-t-2 flex text-neutral-700 font-sans font-light px-4 py-2 bg-linear-to-b from-neutral-50 to-neutral-100 fixed bottom-0 left-0 right-0 justify-center ">
-      <nav class="w-full">
-        <ul class="flex justify-between text-center text-2xl">
-          <a href=""
-             class="flex-1 block py-4 opacity-100 rounded-4xl from-orange-300 to-amber-200  bg-linear-to-b">
-            <li>
-              <i class="bi bi-credit-card-fill"></i>
-            </li>
-          </a>
-          <a href="" class="flex-1 block py-4 opacity-50">
-            <li>
-              <i class="bi bi-cart"></i>
-            </li>
-          </a>
-          <a href="" class="flex-1 block py-4 opacity-50">
-            <li>
-              <i class="bi bi-pie-chart"></i>
-            </li>
-          </a>
-          <a href="" class="flex-1 block py-4 opacity-50">
-            <li>
-              <i class="bi bi-chat-left-dots"></i>
-            </li>
-          </a>
-          <a href="" class="flex-1 block py-4 opacity-50">
-            <li>
-              <i class="bi bi-exclamation-circle"></i>
-            </li>
-          </a>
-          <a href="" class="flex-1 block py-4 opacity-50">
-            <li>
-              <i class="bi bi-person"></i>
-            </li>
-          </a>
-        </ul>
-      </nav>
-    </footer>
+    {% include "partials/nav.html" %}
     {% block extra_body %}
     {% endblock extra_body %}
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>

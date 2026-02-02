@@ -1,7 +1,9 @@
 {% extends "layouts/base.html" %}
+{% block header %}
+  Eliminar transacción
+{% endblock header %}
 {% block content %}
-  <h1>Are you sure you want to delete following {{ object_verbose_name }}?</h1>
-  <p class="mt-4">{{ object }}</p>
+  <h1>¿Esta seguro de eliminar esta transacción?</h1>
   <div class="m-8">
     <form method="POST" action="{{ delete_view_url }}">
       {% csrf_token %}
