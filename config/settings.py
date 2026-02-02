@@ -174,7 +174,7 @@ PWA_APP_SCOPE = "/"
 PWA_APP_ORIENTATION = "any"
 PWA_APP_START_URL = "/"
 PWA_APP_STATUS_BAR_COLOR = "default"
-PWA_APP_ICONS = [{"src": "/static/images/my_app_icon.png", "sizes": "160x160"}]
+PWA_APP_ICONS = [{"src": "/static/images/my_app_icon_192x192.png", "sizes": "192x192"}]
 PWA_APP_ICONS_APPLE = [{"src": "/static/images/my_apple_icon.png", "sizes": "160x160"}]
 PWA_APP_SPLASH_SCREEN = [
     {
