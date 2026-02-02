@@ -9,6 +9,16 @@
     {% endif %}
   </h1>
   <div>
+    <div class="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg">
+      <label class="block text-sm font-medium text-gray-700">Scan Receipt/List</label>
+      <input type="file"
+             id="imageScanner"
+             accept="image/*"
+             class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+      <button type="button"
+              id="scanBtn"
+              class="mt-2 text-xs text-indigo-600 font-bold uppercase tracking-wider">✨ Auto-fill Description</button>
+    </div>
     <form method="post"
           {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}
           action="{% if object %}{{ update_view_url }}{% else %}{{ create_view_url }}{% endif %}"
@@ -22,4 +32,40 @@
       </button>
     </form>
   </div>
+  <script>
+    document.getElementById('scanBtn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('imageScanner');
+      if (!fileInput.files[0]) return alert("Please select an image first!");
+
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+      const btn = document.getElementById('scanBtn');
+      btn.innerText = "Analyzing...";
+
+      try {
+        const response = await fetch('/transactions/analyze-image/', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        
+        // Fill the fields automatically
+        document.getElementById('id_description').value = data.articles;
+        document.getElementById('id_total_amount').value = data.total_amount;
+        
+        // Match the date field (ensure your date input is type="date" or "datetime-local")
+        if (data.date) {
+            // If it's a DateTimeField, it might need 'YYYY-MM-DDTHH:MM'
+            document.getElementById('id_created_at').value = data.date; 
+        }
+
+        btn.innerText = "✨ Auto-filled!";
+    } catch (error) {
+        console.error(error);
+        btn.innerText = "Error";
+    }
+    });
+  </script>
 {% endblock content %}

@@ -85,8 +85,6 @@ class Transaction(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Validation: If is_custom is True, exchange_custom_rate is required
         if self.is_custom and self.exchange_custom_rate is None:
             raise ValidationError(
                 {
@@ -96,6 +94,5 @@ class Transaction(models.Model):
                 }
             )
 
-        # Optional: Clear the custom rate if is_custom is unchecked
         if not self.is_custom and self.exchange_custom_rate is not None:
             self.exchange_custom_rate = None

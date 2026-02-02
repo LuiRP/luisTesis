@@ -10,6 +10,42 @@ from django.utils import timezone
 import django_filters
 from .models import Transaction
 from django import forms
+from django.http import JsonResponse
+from google import genai
+from PIL import Image
+from pydantic import BaseModel
+from django.http import JsonResponse
+import json
+
+
+class TransactionData(BaseModel):
+    articles: str
+    date: str
+    total_amount: float
+
+
+def analyze_transaction_image(request):
+    if request.method == "POST" and request.FILES.get("image"):
+        client = genai.Client(api_key="AIzaSyC5nfGQ3OY4aypyXVsfUWR66b6Ad4dxyaY")
+        img_file = request.FILES["image"]
+        img = Image.open(img_file)
+
+        # 2. Use 'response_mime_type' and 'response_schema' for a perfect JSON
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[
+                "Extract the items with their prices, the date, and the total amount from this receipt.",
+                img,
+            ],
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": TransactionData,
+            },
+        )
+
+        # Gemini returns a valid JSON string matching our Pydantic model
+        data = json.loads(response.text)
+        return JsonResponse(data)
 
 
 class TransactionFilter(django_filters.FilterSet):
