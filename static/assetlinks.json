@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "com.onrender.django_project_8i6g.twa",
-        "sha256_cert_fingerprints": ["34:4A:2D:D6:A3:12:8B:C5:CE:60:4C:05:C1:12:FB:00:9B:72:C7:D3:A1:83:3D:2D:EF:75:21:3E:C7:00:B5:8A"]
+        "package_name": "com.onrender.luistesis.twa",
+        "sha256_cert_fingerprints": ["A9:34:8A:98:E8:84:B9:29:80:85:E6:7A:4B:F5:3A:CA:7B:BC:36:CC:51:E3:BF:3D:64:B7:41:EB:27:74:A3:7C"]
       }
     }]
