@@ -19,8 +19,12 @@ import json
 from google.genai import types
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+import os
+from dotenv import load_dotenv
+from django.conf import settings
+from django.http import JsonResponse
 
-my_api_key = "AIzaSyC5nfGQ3OY4aypyXVsfUWR66b6Ad4dxyaY"
+my_api_key = settings.GEMINI_API_KEY
 
 from django.db.models import Sum, F, Case, When, DecimalField
 from django.db.models.functions import Coalesce, TruncMonth
